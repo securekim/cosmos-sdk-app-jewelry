@@ -24,6 +24,7 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 	nameserviceTxCmd.AddCommand(client.PostCommands(
 		GetCmdBuyName(cdc),
 		GetCmdSetName(cdc),
+		GetCmdSetDia(cdc),
 	)...)
 
 	return nameserviceTxCmd
@@ -68,6 +69,35 @@ func GetCmdSetName(cdc *codec.Codec) *cobra.Command {
 		Use:   "set-name [name] [value]",
 		Short: "set the value associated with a name that you own",
 		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc).WithAccountDecoder(cdc)
+
+			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+
+			if err := cliCtx.EnsureAccountExists(); err != nil {
+				return err
+			}
+
+			msg := types.NewMsgSetName(args[0], args[1], cliCtx.GetFromAddress())
+			err := msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			cliCtx.PrintResponse = true
+
+			// return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, msgs)
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+}
+
+// GetCmdSetDia is the CLI command for sending a SetDia transaction
+func GetCmdSetDia(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "set-dia [code] [carat] [cut] [clarity] [color] [fluorescence]",
+		Short: "set the dia value associated with a 4C that you check",
+		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc).WithAccountDecoder(cdc)
 

@@ -37,7 +37,7 @@ func main() {
 
 	rootCmd := &cobra.Command{
 		Use:   "nscli",
-		Short: "nameservice Client",
+		Short: "bro's nameservice Client",
 	}
 
 	// Add --chain-id to persistent flags and mark it required
