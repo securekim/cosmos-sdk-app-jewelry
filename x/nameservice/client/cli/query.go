@@ -21,6 +21,7 @@ func GetQueryCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 	nameserviceQueryCmd.AddCommand(client.GetCommands(
 		GetCmdResolveName(storeKey, cdc),
 		GetCmdWhois(storeKey, cdc),
+		GetCmdWhichis(storeKey, cdc),
 		GetCmdNames(storeKey, cdc),
 	)...)
 	return nameserviceQueryCmd
@@ -66,6 +67,29 @@ func GetCmdWhois(queryRoute string, cdc *codec.Codec) *cobra.Command {
 			}
 
 			var out types.Whois
+			cdc.MustUnmarshalJSON(res, &out)
+			return cliCtx.PrintOutput(out)
+		},
+	}
+}
+
+// GetCmdWhichis queries information about a domain
+func GetCmdWhichis(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "whichis [code]",
+		Short: "Query whichis info of code",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			code := args[0]
+
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/whichis/%s", queryRoute, code), nil)
+			if err != nil {
+				fmt.Printf("could not resolve whichis - %s \n", code)
+				return nil
+			}
+
+			var out types.Whichis
 			cdc.MustUnmarshalJSON(res, &out)
 			return cliCtx.PrintOutput(out)
 		},

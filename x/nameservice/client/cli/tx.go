@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/spf13/cobra"
+	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/cosmos/sdk-application-tutorial/x/nameservice/types"
+	"github.com/spf13/cobra"
 )
 
 func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
@@ -24,7 +25,7 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 	nameserviceTxCmd.AddCommand(client.PostCommands(
 		GetCmdBuyName(cdc),
 		GetCmdSetName(cdc),
-		GetCmdSetDia(cdc),
+		GetCmdSetCode(cdc),
 	)...)
 
 	return nameserviceTxCmd
@@ -92,27 +93,30 @@ func GetCmdSetName(cdc *codec.Codec) *cobra.Command {
 	}
 }
 
-// GetCmdSetDia is the CLI command for sending a SetDia transaction
-func GetCmdSetDia(cdc *codec.Codec) *cobra.Command {
+// GetCmdSetCode is the CLI command for sending a SetDia transaction
+func GetCmdSetCode(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "set-dia [code] [carat] [cut] [clarity] [color] [fluorescence]",
-		Short: "set the dia value associated with a 4C that you check",
+		Use:   "set-code [code] [carat] [cut] [clarity] [color] [fluorescence]",
+		Short: "set the code value associated with a 4C that you check",
 		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc).WithAccountDecoder(cdc)
 
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-
+			fmt.Println("Ho")
 			if err := cliCtx.EnsureAccountExists(); err != nil {
+				panic(err)
 				return err
 			}
-
-			msg := types.NewMsgSetName(args[0], args[1], cliCtx.GetFromAddress())
+			fmt.Println("Hi1")
+			msg := types.NewMsgSetCode(args[0], args[1], args[2], args[3], args[4], args[5], cliCtx.GetFromAddress())
 			err := msg.ValidateBasic()
 			if err != nil {
+				panic(err)
 				return err
 			}
 
+			fmt.Println("Hi2")
 			cliCtx.PrintResponse = true
 
 			// return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, msgs)

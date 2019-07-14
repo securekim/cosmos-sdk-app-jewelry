@@ -11,6 +11,7 @@ import (
 const (
 	QueryResolve = "resolve"
 	QueryWhois   = "whois"
+	QueryWhichis = "whichis"
 	QueryNames   = "names"
 )
 
@@ -22,6 +23,8 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 			return queryResolve(ctx, path[1:], req, keeper)
 		case QueryWhois:
 			return queryWhois(ctx, path[1:], req, keeper)
+		case QueryWhichis:
+			return queryWhichis(ctx, path[1:], req, keeper)
 		case QueryNames:
 			return queryNames(ctx, req, keeper)
 		default:
@@ -51,6 +54,18 @@ func queryWhois(ctx sdk.Context, path []string, req abci.RequestQuery, keeper Ke
 	whois := keeper.GetWhois(ctx, path[0])
 
 	res, err := codec.MarshalJSONIndent(keeper.cdc, whois)
+	if err != nil {
+		panic("could not marshal result to JSON")
+	}
+
+	return res, nil
+}
+
+// nolint: unparam
+func queryWhichis(ctx sdk.Context, path []string, req abci.RequestQuery, keeper Keeper) ([]byte, sdk.Error) {
+	whichis := keeper.GetWhichis(ctx, path[0])
+
+	res, err := codec.MarshalJSONIndent(keeper.cdc, whichis)
 	if err != nil {
 		panic("could not marshal result to JSON")
 	}

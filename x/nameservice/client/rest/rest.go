@@ -16,6 +16,7 @@ import (
 
 const (
 	restName = "name"
+	restCode = "code"
 )
 
 // RegisterRoutes - Central function to define routes that get registered by the main application
@@ -23,8 +24,10 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, storeName string) 
 	r.HandleFunc(fmt.Sprintf("/%s/names", storeName), namesHandler(cliCtx, storeName)).Methods("GET")
 	r.HandleFunc(fmt.Sprintf("/%s/names", storeName), buyNameHandler(cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/%s/names", storeName), setNameHandler(cliCtx)).Methods("PUT")
+	r.HandleFunc(fmt.Sprintf("/%s/names", storeName), setCodeHandler(cliCtx)).Methods("PUT")
 	r.HandleFunc(fmt.Sprintf("/%s/names/{%s}", storeName, restName), resolveNameHandler(cliCtx, storeName)).Methods("GET")
 	r.HandleFunc(fmt.Sprintf("/%s/names/{%s}/whois", storeName, restName), whoIsHandler(cliCtx, storeName)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/%s/names/{%s}/whichis", storeName, restCode), whichIsHandler(cliCtx, storeName)).Methods("GET")
 }
 
 // --------------------------------------------------------------------------------------
@@ -82,6 +85,17 @@ type setNameReq struct {
 	Owner   string       `json:"owner"`
 }
 
+type setCodeReq struct {
+	BaseReq      rest.BaseReq `json:"base_req"`
+	Code         string       `json:"code"`
+	Carat        string       `json:"carat"`
+	Cut          string       `json:"cut"`
+	Clarity      string       `json:"clarity"`
+	Color        string       `json:"color"`
+	Fluorescence string       `json:"fluorescence"`
+	Owner        string       `json:"owner"`
+}
+
 func setNameHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req setNameReq
@@ -103,6 +117,37 @@ func setNameHandler(cliCtx context.CLIContext) http.HandlerFunc {
 
 		// create the message
 		msg := types.NewMsgSetName(req.Name, req.Value, addr)
+		err = msg.ValidateBasic()
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		utils.WriteGenerateStdTxResponse(w, cliCtx, baseReq, []sdk.Msg{msg})
+	}
+}
+
+func setCodeHandler(cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req setCodeReq
+		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
+			return
+		}
+
+		baseReq := req.BaseReq.Sanitize()
+		if !baseReq.ValidateBasic(w) {
+			return
+		}
+
+		addr, err := sdk.AccAddressFromBech32(req.Owner)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		// create the message
+		msg := types.NewMsgSetCode(req.Code, req.Carat, req.Cut, req.Clarity, req.Color, req.Fluorescence, addr)
 		err = msg.ValidateBasic()
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -137,6 +182,21 @@ func whoIsHandler(cliCtx context.CLIContext, storeName string) http.HandlerFunc 
 		paramType := vars[restName]
 
 		res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/whois/%s", storeName, paramType), nil)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
+		}
+
+		rest.PostProcessResponse(w, cliCtx, res)
+	}
+}
+
+func whichIsHandler(cliCtx context.CLIContext, storeName string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		paramType := vars[restCode]
+
+		res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/whichis/%s", storeName, paramType), nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return

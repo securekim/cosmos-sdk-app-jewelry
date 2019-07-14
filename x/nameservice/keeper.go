@@ -37,7 +37,19 @@ func (k Keeper) GetWhois(ctx sdk.Context, name string) Whois {
 	return whois
 }
 
-// Sets the entire Whois metadata struct for a name
+//GetWhichis Gets the entire Whichis metadata struct for a name
+func (k Keeper) GetWhichis(ctx sdk.Context, name string) Whichis {
+	store := ctx.KVStore(k.storeKey)
+	if !store.Has([]byte(name)) {
+		return NewWhichis()
+	}
+	bz := store.Get([]byte(name))
+	var whichis Whichis
+	k.cdc.MustUnmarshalBinaryBare(bz, &whichis)
+	return whichis
+}
+
+//SetWhois Sets the entire Whois metadata struct for a name
 func (k Keeper) SetWhois(ctx sdk.Context, name string, whois Whois) {
 	if whois.Owner.Empty() {
 		return
@@ -46,9 +58,23 @@ func (k Keeper) SetWhois(ctx sdk.Context, name string, whois Whois) {
 	store.Set([]byte(name), k.cdc.MustMarshalBinaryBare(whois))
 }
 
-// ResolveName - returns the string that the name resolves to
+//SetWhichis Sets the entire Whichis metadata struct for a name
+func (k Keeper) SetWhichis(ctx sdk.Context, name string, whichis Whichis) {
+	if whichis.Owner.Empty() {
+		return
+	}
+	store := ctx.KVStore(k.storeKey)
+	store.Set([]byte(name), k.cdc.MustMarshalBinaryBare(whichis))
+}
+
+// // ResolveName - returns the string that the name resolves to
 func (k Keeper) ResolveName(ctx sdk.Context, name string) string {
 	return k.GetWhois(ctx, name).Value
+}
+
+// ResolveName - returns the string that the name resolves to
+func (k Keeper) ResolveCode(ctx sdk.Context, code string) string {
+	return k.GetWhichis(ctx, code).Code
 }
 
 // SetName - sets the value string that a name resolves to
@@ -56,6 +82,19 @@ func (k Keeper) SetName(ctx sdk.Context, name string, value string) {
 	whois := k.GetWhois(ctx, name)
 	whois.Value = value
 	k.SetWhois(ctx, name, whois)
+}
+
+// SetCode - sets the value string that a name resolves to
+func (k Keeper) SetCode(ctx sdk.Context, code string, carat string, cut string, clarity string, color string, fluorescence string) {
+	//[code] [carat] [cut] [clarity] [color] [fluorescence]
+	whichis := k.GetWhichis(ctx, code)
+	whichis.Code = code
+	whichis.Carat = carat
+	whichis.Cut = cut
+	whichis.Clarity = clarity
+	whichis.Color = color
+	whichis.Fluorescence = fluorescence
+	k.SetWhichis(ctx, code, whichis)
 }
 
 // HasOwner - returns whether or not the name already has an owner
