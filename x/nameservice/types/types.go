@@ -9,6 +9,7 @@ import (
 
 // Initial Starting Price for a name that was never previously owned
 var MinNamePrice = sdk.Coins{sdk.NewInt64Coin("nametoken", 1)}
+var MinCodePrice = sdk.Coins{sdk.NewInt64Coin("codetoken", 1)}
 
 // Whois is a struct that contains all the metadata of a name
 type Whois struct {
@@ -36,10 +37,10 @@ func NewWhois() Whois {
 	}
 }
 
-// Returns a new Whois with the minprice as the price
+// Returns a new Whichis with the minprice as the price
 func NewWhichis() Whichis {
 	return Whichis{
-		Price: MinNamePrice,
+		Price: MinCodePrice,
 	}
 }
 

@@ -69,7 +69,7 @@ func GetCmdBuyName(cdc *codec.Codec) *cobra.Command {
 func GetCmdBuyCode(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "buy-code [code] [amount]",
-		Short: "bid for existing name or claim new name",
+		Short: "bid for existing code or claim new code",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc).WithAccountDecoder(cdc)

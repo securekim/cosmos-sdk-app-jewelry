@@ -37,13 +37,13 @@ func (k Keeper) GetWhois(ctx sdk.Context, name string) Whois {
 	return whois
 }
 
-//GetWhichis Gets the entire Whichis metadata struct for a name
-func (k Keeper) GetWhichis(ctx sdk.Context, name string) Whichis {
+//GetWhichis Gets the entire Whichis metadata struct for a code
+func (k Keeper) GetWhichis(ctx sdk.Context, code string) Whichis {
 	store := ctx.KVStore(k.storeKey)
-	if !store.Has([]byte(name)) {
+	if !store.Has([]byte(code)) {
 		return NewWhichis()
 	}
-	bz := store.Get([]byte(name))
+	bz := store.Get([]byte(code))
 	var whichis Whichis
 	k.cdc.MustUnmarshalBinaryBare(bz, &whichis)
 	return whichis
@@ -58,13 +58,13 @@ func (k Keeper) SetWhois(ctx sdk.Context, name string, whois Whois) {
 	store.Set([]byte(name), k.cdc.MustMarshalBinaryBare(whois))
 }
 
-//SetWhichis Sets the entire Whichis metadata struct for a name
-func (k Keeper) SetWhichis(ctx sdk.Context, name string, whichis Whichis) {
+//SetWhichis Sets the entire Whichis metadata struct for a code
+func (k Keeper) SetWhichis(ctx sdk.Context, code string, whichis Whichis) {
 	if whichis.Owner.Empty() {
 		return
 	}
 	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(name), k.cdc.MustMarshalBinaryBare(whichis))
+	store.Set([]byte(code), k.cdc.MustMarshalBinaryBare(whichis))
 }
 
 // // ResolveName - returns the string that the name resolves to
@@ -97,37 +97,43 @@ func (k Keeper) SetCode(ctx sdk.Context, code string, carat string, cut string, 
 	k.SetWhichis(ctx, code, whichis)
 }
 
-// HasOwner - returns whether or not the name already has an owner
-func (k Keeper) HasOwner(ctx sdk.Context, name string) bool {
-	return !k.GetWhois(ctx, name).Owner.Empty()
+// HasOwner - returns whether or not the code already has an owner
+func (k Keeper) HasOwner(ctx sdk.Context, code string) bool {
+	return !k.GetWhichis(ctx, code).Owner.Empty()
 }
 
-// GetOwner - get the current owner of a name
-func (k Keeper) GetOwner(ctx sdk.Context, name string) sdk.AccAddress {
-	return k.GetWhois(ctx, name).Owner
+// GetOwner - get the current owner of a code
+func (k Keeper) GetOwner(ctx sdk.Context, code string) sdk.AccAddress {
+	return k.GetWhichis(ctx, code).Owner
 }
 
-// SetOwner - sets the current owner of a name
-func (k Keeper) SetOwner(ctx sdk.Context, name string, owner sdk.AccAddress) {
-	whois := k.GetWhois(ctx, name)
-	whois.Owner = owner
-	k.SetWhois(ctx, name, whois)
+// SetOwner - sets the current owner of a code
+func (k Keeper) SetOwner(ctx sdk.Context, code string, owner sdk.AccAddress) {
+	whichis := k.GetWhichis(ctx, code)
+	whichis.Owner = owner
+	k.SetWhichis(ctx, code, whichis)
 }
 
-// GetPrice - gets the current price of a name
-func (k Keeper) GetPrice(ctx sdk.Context, name string) sdk.Coins {
-	return k.GetWhois(ctx, name).Price
+// GetPrice - gets the current price of a code
+func (k Keeper) GetPrice(ctx sdk.Context, code string) sdk.Coins {
+	return k.GetWhichis(ctx, code).Price
 }
 
 // SetPrice - sets the current price of a name
-func (k Keeper) SetPrice(ctx sdk.Context, name string, price sdk.Coins) {
-	whois := k.GetWhois(ctx, name)
-	whois.Price = price
-	k.SetWhois(ctx, name, whois)
+func (k Keeper) SetPrice(ctx sdk.Context, code string, price sdk.Coins) {
+	whichis := k.GetWhichis(ctx, code)
+	whichis.Price = price
+	k.SetWhichis(ctx, code, whichis)
 }
 
 // Get an iterator over all names in which the keys are the names and the values are the whois
 func (k Keeper) GetNamesIterator(ctx sdk.Context) sdk.Iterator {
+	store := ctx.KVStore(k.storeKey)
+	return sdk.KVStorePrefixIterator(store, nil)
+}
+
+// Get an iterator over all names in which the keys are the names and the values are the whois
+func (k Keeper) GetCodesIterator(ctx sdk.Context) sdk.Iterator {
 	store := ctx.KVStore(k.storeKey)
 	return sdk.KVStorePrefixIterator(store, nil)
 }

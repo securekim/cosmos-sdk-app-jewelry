@@ -4,12 +4,14 @@ _PATH=`pwd`
 killall nsd
 killall nscli
 rm -rf ~/.ns*
+rm bin/*
 cd /home/securekim/go/src/github.com/cosmos/cosmos-sdk-app-jewelry
 go build cmd/nscli/main.go
 mv main bin/nscli
 go build cmd/nsd/main.go
 mv main bin/nsd
 cd bin
+./nsd unsafe-reset-all
 ./nsd init securekim --chain-id diachain
 ./nscli keys add jack
 ./nsd add-genesis-account $(nscli keys show jack -a) 1000nametoken,100000000stake

@@ -83,6 +83,10 @@ func (AppModule) Name() string {
 	return ModuleName
 }
 
+func (AppModule) Code() string {
+	return ModuleName
+}
+
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
 
 func (am AppModule) Route() string {

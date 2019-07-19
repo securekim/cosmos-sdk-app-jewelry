@@ -22,13 +22,15 @@ const (
 // RegisterRoutes - Central function to define routes that get registered by the main application
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, storeName string) {
 	r.HandleFunc(fmt.Sprintf("/%s/names", storeName), namesHandler(cliCtx, storeName)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/%s/codes", storeName), codesHandler(cliCtx, storeName)).Methods("GET")
 	r.HandleFunc(fmt.Sprintf("/%s/names", storeName), buyNameHandler(cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/%s/names", storeName), buyCodeHandler(cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/%s/codes", storeName), buyCodeHandler(cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/%s/names", storeName), setNameHandler(cliCtx)).Methods("PUT")
-	r.HandleFunc(fmt.Sprintf("/%s/names", storeName), setCodeHandler(cliCtx)).Methods("PUT")
+	r.HandleFunc(fmt.Sprintf("/%s/codes", storeName), setCodeHandler(cliCtx)).Methods("PUT")
 	r.HandleFunc(fmt.Sprintf("/%s/names/{%s}", storeName, restName), resolveNameHandler(cliCtx, storeName)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/%s/codes/{%s}", storeName, restName), resolveNameHandler(cliCtx, storeName)).Methods("GET")
 	r.HandleFunc(fmt.Sprintf("/%s/names/{%s}/whois", storeName, restName), whoIsHandler(cliCtx, storeName)).Methods("GET")
-	r.HandleFunc(fmt.Sprintf("/%s/names/{%s}/whichis", storeName, restCode), whichIsHandler(cliCtx, storeName)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/%s/codes/{%s}/whichis", storeName, restCode), whichIsHandler(cliCtx, storeName)).Methods("GET")
 }
 
 // --------------------------------------------------------------------------------------
@@ -222,6 +224,21 @@ func resolveNameHandler(cliCtx context.CLIContext, storeName string) http.Handle
 	}
 }
 
+func resolveCodeHandler(cliCtx context.CLIContext, storeName string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		paramType := vars[restCode]
+
+		res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/resolve/%s", storeName, paramType), nil)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
+		}
+
+		rest.PostProcessResponse(w, cliCtx, res)
+	}
+}
+
 func whoIsHandler(cliCtx context.CLIContext, storeName string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -255,6 +272,17 @@ func whichIsHandler(cliCtx context.CLIContext, storeName string) http.HandlerFun
 func namesHandler(cliCtx context.CLIContext, storeName string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/names", storeName), nil)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
+		}
+		rest.PostProcessResponse(w, cliCtx, res)
+	}
+}
+
+func codesHandler(cliCtx context.CLIContext, storeName string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/codes", storeName), nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return

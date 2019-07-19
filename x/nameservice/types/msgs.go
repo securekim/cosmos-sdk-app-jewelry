@@ -164,7 +164,7 @@ func (msg MsgBuyCode) ValidateBasic() sdk.Error {
 		return sdk.ErrInvalidAddress(msg.Buyer.String())
 	}
 	if len(msg.Code) == 0 {
-		return sdk.ErrUnknownRequest("Name cannot be empty")
+		return sdk.ErrUnknownRequest("Code cannot be empty")
 	}
 	if !msg.Bid.IsAllPositive() {
 		return sdk.ErrInsufficientCoins("Bids must be positive")

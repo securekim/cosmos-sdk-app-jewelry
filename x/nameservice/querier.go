@@ -13,6 +13,7 @@ const (
 	QueryWhois   = "whois"
 	QueryWhichis = "whichis"
 	QueryNames   = "names"
+	QueryCodes   = "codes"
 )
 
 // NewQuerier is the module level router for state queries
@@ -27,6 +28,8 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 			return queryWhichis(ctx, path[1:], req, keeper)
 		case QueryNames:
 			return queryNames(ctx, req, keeper)
+		case QueryCodes:
+			return queryCodes(ctx, req, keeper)
 		default:
 			return nil, sdk.ErrUnknownRequest("unknown nameservice query endpoint")
 		}
@@ -83,6 +86,23 @@ func queryNames(ctx sdk.Context, req abci.RequestQuery, keeper Keeper) ([]byte, 
 	}
 
 	res, err := codec.MarshalJSONIndent(keeper.cdc, namesList)
+	if err != nil {
+		panic("could not marshal result to JSON")
+	}
+
+	return res, nil
+}
+
+func queryCodes(ctx sdk.Context, req abci.RequestQuery, keeper Keeper) ([]byte, sdk.Error) {
+	var codesList QueryResCodes
+
+	iterator := keeper.GetCodesIterator(ctx)
+
+	for ; iterator.Valid(); iterator.Next() {
+		codesList = append(codesList, string(iterator.Key()))
+	}
+
+	res, err := codec.MarshalJSONIndent(keeper.cdc, codesList)
 	if err != nil {
 		panic("could not marshal result to JSON")
 	}

@@ -28,6 +28,7 @@ type (
 	MsgBuyCode      = types.MsgBuyCode
 	QueryResResolve = types.QueryResResolve
 	QueryResNames   = types.QueryResNames
+	QueryResCodes   = types.QueryResCodes
 	Whois           = types.Whois
 	Whichis         = types.Whichis
 )
