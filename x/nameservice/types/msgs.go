@@ -123,7 +123,7 @@ func NewMsgBuyName(name string, bid sdk.Coins, buyer sdk.AccAddress) MsgBuyName 
 	}
 }
 
-// NewMsgBuyCode is the constructor function for MsgBuyName
+// NewMsgBuyCode is the constructor function for MsgBuyCode
 func NewMsgBuyCode(code string, bid sdk.Coins, buyer sdk.AccAddress) MsgBuyCode {
 	return MsgBuyCode{
 		Code:  code,
@@ -158,12 +158,36 @@ func (msg MsgBuyName) ValidateBasic() sdk.Error {
 	return nil
 }
 
+// ValidateBasic runs stateless checks on the message
+func (msg MsgBuyCode) ValidateBasic() sdk.Error {
+	if msg.Buyer.Empty() {
+		return sdk.ErrInvalidAddress(msg.Buyer.String())
+	}
+	if len(msg.Code) == 0 {
+		return sdk.ErrUnknownRequest("Name cannot be empty")
+	}
+	if !msg.Bid.IsAllPositive() {
+		return sdk.ErrInsufficientCoins("Bids must be positive")
+	}
+	return nil
+}
+
 // GetSignBytes encodes the message for signing
 func (msg MsgBuyName) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
+// GetSignBytes encodes the message for signing
+func (msg MsgBuyCode) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
 // GetSigners defines whose signature is required
 func (msg MsgBuyName) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Buyer}
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgBuyCode) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Buyer}
 }
