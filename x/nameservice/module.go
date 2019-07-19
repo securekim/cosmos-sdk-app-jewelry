@@ -6,11 +6,11 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 
+	"github.com/cosmos/cosmos-sdk-app-jewelry/x/nameservice/client/cli"
+	"github.com/cosmos/cosmos-sdk-app-jewelry/x/nameservice/client/rest"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
-	"github.com/cosmos/sdk-application-tutorial/x/nameservice/client/cli"
-	"github.com/cosmos/sdk-application-tutorial/x/nameservice/client/rest"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"

@@ -3,13 +3,13 @@ package cli
 import (
 	"fmt"
 
+	"github.com/cosmos/cosmos-sdk-app-jewelry/x/nameservice/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
-	"github.com/cosmos/sdk-application-tutorial/x/nameservice/types"
 	"github.com/spf13/cobra"
 )
 
