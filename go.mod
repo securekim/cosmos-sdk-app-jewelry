@@ -18,4 +18,7 @@ require (
 	google.golang.org/grpc v1.19.1 // indirect
 )
 
-replace golang.org/x/crypto => github.com/tendermint/crypto v0.0.0-20180820045704-3764759f34a5
+replace (
+	github.com/cosmos/cosmos-sdk => ../cosmos-sdk
+	golang.org/x/crypto => github.com/tendermint/crypto v0.0.0-20180820045704-3764759f34a5
+)

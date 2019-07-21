@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"fmt"
-
 	"github.com/cosmos/cosmos-sdk-app-jewelry/x/nameservice/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -137,20 +135,16 @@ func GetCmdSetCode(cdc *codec.Codec) *cobra.Command {
 			cliCtx := context.NewCLIContext().WithCodec(cdc).WithAccountDecoder(cdc)
 
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-			fmt.Println("Ho")
 			if err := cliCtx.EnsureAccountExists(); err != nil {
 				panic(err)
 				return err
 			}
-			fmt.Println("Hi1")
 			msg := types.NewMsgSetCode(args[0], args[1], args[2], args[3], args[4], args[5], cliCtx.GetFromAddress())
 			err := msg.ValidateBasic()
 			if err != nil {
 				panic(err)
 				return err
 			}
-
-			fmt.Println("Hi2")
 			cliCtx.PrintResponse = true
 
 			// return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, msgs)

@@ -13,13 +13,17 @@ mv main bin/nsd
 cd bin
 ./nsd unsafe-reset-all
 ./nsd init securekim --chain-id diachain
-./nscli keys add jack
-./nsd add-genesis-account $(nscli keys show jack -a) 1000nametoken,100000000stake
+./nscli keys add gemologist
+./nscli keys add wholesaler
+./nscli keys add retailer
+./nsd add-genesis-account $($_PATH/bin/nscli keys show gemologist -a) 100nametoken,100000000stake
+./nsd add-genesis-account $($_PATH/bin/nscli keys show wholesaler -a) 1500nametoken,100000000stake
+./nsd add-genesis-account $($_PATH/bin/nscli keys show retailer -a) 1000nametoken,100000000stake
 ./nscli config chain-id diachain
 ./nscli config output json
 ./nscli config indent true
 ./nscli config trust-node true
-./nsd gentx --name jack
+./nsd gentx --name gemologist
 ./nsd collect-gentxs
 ./nsd validate-genesis
 ./nsd start
